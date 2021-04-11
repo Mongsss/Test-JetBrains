@@ -1,23 +1,85 @@
-import logo from './logo.svg';
+import React, { useEffect, useState } from 'react';
+
+import Typography from '@material-ui/core/Typography';
+import Paper from '@material-ui/core/Paper';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
+
+import ToDoInput from './components/ToDoInput/ToDoInput';
+import ToDoList from './components/ToDoList/ToDoList';
+
 import './App.css';
 
-function App() {
+const App = () => {
+  const initState = JSON.parse(localStorage.getItem('list')) || [];
+  const [input, setInput] = useState('');
+  const [list, setList] = useState(initState);
+  const [editItem, setEditItem] = useState(null);
+  const [filterList, setFilterList] = useState([]);
+  const [status, setStatus] = useState('all');
+  const [value, setValue] = useState(0);
+
+  const filteredList = () => {
+    switch (status) {
+      case 'done':
+        setFilterList(list.filter((item) => item.completed === true));
+        break;
+      case 'undone':
+        setFilterList(list.filter((item) => item.completed === false));
+        break;
+      default: 
+        setFilterList(list);
+        break;
+    }
+  }
+
+
+  useEffect(() => {
+    filteredList();
+    localStorage.setItem('list', JSON.stringify(list));
+  }, [list, status]);
+
+  
+  const handleChange = (event, newValue) => {
+    setStatus(newValue);
+    setValue(newValue);
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    <div className="app">
+      <Typography component="h1" variant="h2">
+        Input your task
+      </Typography>
+
+      <ToDoInput
+        input={input}
+        setInput={setInput}
+        list={list}
+        setList={setList}
+        editItem={editItem}
+        setEditItem={setEditItem}
+      />
+
+      <Paper square>
+        <Tabs
+          value={value}
+          indicatorColor="primary"
+          textColor="primary"
+          onChange={handleChange}
+          aria-label="disabled tabs example"
         >
-          Learn React
-        </a>
-      </header>
+          <Tab label="All" value='all' />
+          <Tab label="Done" value='done' />
+          <Tab label="Undone" value='undone'/>
+        </Tabs>
+      </Paper>
+      
+      <ToDoList 
+        list={list}
+        filterList={filterList}
+        setList={setList}
+        setEditItem={setEditItem}
+      />
     </div>
   );
 }
