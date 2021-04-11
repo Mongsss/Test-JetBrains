@@ -44,19 +44,19 @@ const App = () => {
 
   const fetchList = () => {
     getList()
-      .then(res => {
-        let flag = false;
-        let tmp = [...list].slice(0, list.length);
+      .then(res => { 
+        const result = [...res, ...list];
 
-        for(let i = 0; i < res.length; i++) {
-          if(tmp[i].id !== res[i].id) {
-            flag = true;
+        let set = new Set();
+        let newList = result.filter(item => {
+          if (!set.has(item.id)) {
+            set.add(item.id);
+            return true;
           }
-        }
+          return false;
+        }, set);
 
-        if(flag){
-          setList([...res, ...list])
-        }
+        setList(newList);
       })
       .catch(err => setError(true));
   }
@@ -106,7 +106,7 @@ const App = () => {
         setEditItem={setEditItem}
       />
 
-      {value === 'done' ? <ToDoChart filterList={filterList}/> : null}
+      {value === 'done' && filterList.length > 0 ? <ToDoChart filterList={filterList}/> : null}
     </div>
   );
 }
