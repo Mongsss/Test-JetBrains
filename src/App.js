@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 
 import Typography from '@material-ui/core/Typography';
@@ -7,8 +8,11 @@ import Tab from '@material-ui/core/Tab';
 
 import ToDoInput from './components/ToDoInput/ToDoInput';
 import ToDoList from './components/ToDoList/ToDoList';
+import ToDoChart from './components/ToDoChart/ToDoChart';
 
 import './App.css';
+
+import { getList } from './request/requestData';
 
 const App = () => {
   const initState = JSON.parse(localStorage.getItem('list')) || [];
@@ -16,11 +20,11 @@ const App = () => {
   const [list, setList] = useState(initState);
   const [editItem, setEditItem] = useState(null);
   const [filterList, setFilterList] = useState([]);
-  const [status, setStatus] = useState('all');
-  const [value, setValue] = useState(0);
+  const [value, setValue] = useState('all');
+  const [err, setError] = useState(false);
 
   const filteredList = () => {
-    switch (status) {
+    switch (value) {
       case 'done':
         setFilterList(list.filter((item) => item.completed === true));
         break;
@@ -33,15 +37,36 @@ const App = () => {
     }
   }
 
+  useEffect(() => {
+    fetchList();
+  }, [])
+
+
+  const fetchList = () => {
+    getList()
+      .then(res => {
+        let flag = false;
+        let tmp = [...list].slice(0, list.length);
+
+        for(let i = 0; i < res.length; i++) {
+          if(tmp[i].id !== res[i].id) {
+            flag = true;
+          }
+        }
+
+        if(flag){
+          setList([...res, ...list])
+        }
+      })
+      .catch(err => setError(true));
+  }
 
   useEffect(() => {
     filteredList();
     localStorage.setItem('list', JSON.stringify(list));
-  }, [list, status]);
+  }, [list, value]);
 
-  
   const handleChange = (event, newValue) => {
-    setStatus(newValue);
     setValue(newValue);
   };
 
@@ -80,6 +105,8 @@ const App = () => {
         setList={setList}
         setEditItem={setEditItem}
       />
+
+      {value === 'done' ? <ToDoChart filterList={filterList}/> : null}
     </div>
   );
 }

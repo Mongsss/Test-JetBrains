@@ -40,11 +40,12 @@ const ToDoInput = ({ input, setInput, list, setList, editItem, setEditItem }) =>
     <form onSubmit={handleFormSumbit}>
       <TextField
         variant="outlined"
-        placeholder="Add todo"
+        placeholder="Add task"
         margin="normal"
         value={input}
         onChange={handleInputChange}
         required
+				fullWidth
       />
     </form>
   );
