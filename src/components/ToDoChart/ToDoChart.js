@@ -1,41 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-
-const data = [
-  {
-    day: 'Sunday',
-    count: 0,
-  },
-  {
-    day: 'Monday',
-    count: 0,
-  },
-  {
-    day: 'Tuesday',
-    count: 0,
-  },
-  {
-    day: 'Wednesday',
-    count: 0,
-  },
-  {
-    day: 'Thursday',
-    count: 0,
-  },
-  {
-    day: 'Friday',
-    count: 0,
-  },
-  {
-    day: 'Saturday',
-    count: 0,
-  },
-];
 
 
 const ToDoChart = ({ filterList }) => {
-  // const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  const [value, setValue]
+  const [data, setData] = useState([]);
 
   const fetchDays = () => {
     let arr = filterList.map(item => {
@@ -45,23 +13,32 @@ const ToDoChart = ({ filterList }) => {
       return properties;
     });
 
-    let newArr = {}
+    let newArr = {};
 
     arr.forEach(function(obj) {
-      var key = JSON.stringify(obj.day)
+      let key = JSON.stringify(obj.day);
       newArr[key] = (newArr[key] || 0) + 1
-    })
+    });
 
-    return newArr;
+    let res = [];
+
+    Object.keys(newArr).forEach(function(key) {
+      let obj = {};
+      obj[key] = newArr[key];
+      res.push({
+        day: key,
+        count: newArr[key]
+      });
+    });
+
+    return res;
   }
   
-
   useEffect(() => {
     console.log(fetchDays());
-    fetchDays();
-  }, []);
+    setData(fetchDays());
+  }, [filterList]);
 
-  // console.log(fetchDays());
 
   return (
     <div style={{ height:"300px" }}>
@@ -78,7 +55,7 @@ const ToDoChart = ({ filterList }) => {
           }}
         >
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
+          <XAxis dataKey="day" />
           <YAxis />
           <Tooltip />
           <Legend />
